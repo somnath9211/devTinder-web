@@ -7,12 +7,13 @@ import { useNavigate } from 'react-router-dom'
 const Login = () => {
     const [emailId, setEmailId] = useState('')
     const [password, setPassword] = useState('')
+    const [errorMessage, setErrorMessage] = useState('');
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        console.log('Login attempted with', { emailId, password });
+        // console.log('Login attempted with', { emailId, password });
 
         try {
             const response = await axios.post(
@@ -22,14 +23,10 @@ const Login = () => {
             );
 
             dispatch(setUser(response.data.user));
-
-            console.log('Login successful:', response);
-            // Example: Save token if provided
-            // localStorage.setItem("token", response.data.token);
-            // Navigate user
             navigate("/");
         } catch (error) {
             if (error.response) {
+                setErrorMessage(error.response.data.message || 'Login failed. Please try again.');
                 console.error("Server error:", error.response.data.message || error.response.data);
             } else if (error.request) {
                 console.error("No response from server:", error.request);
@@ -56,7 +53,8 @@ const Login = () => {
                         </label>
                         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter Password" class="w-full input input-bordered input-primary" />
                     </div>
-                    <a href="#" class="text-xs text-gray-600 hover:underline hover:text-blue-600">Forget Password?</a>
+                    {errorMessage && (<p class="text-red-500 text-sm">{errorMessage}</p>)}
+
                     <div>
                         <button class="btn btn-primary" onClick={handleLogin}>Login</button>
                     </div>
